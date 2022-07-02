@@ -55,8 +55,8 @@ Demo板发送过程如下：
 
 ### 1. 命令格式
 
-|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd | Addr  |  Num  | State | Data[] |  CRC  |  EOT  |
-| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :----: | :---: | :---: |
+|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd |  Key  | Addr  |  Num  | State | Data[] |  CRC  |  EOT  |
+| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---: | :----: | :---: | :---: |
 
 命令数据块各部分说明如下：
 
@@ -67,6 +67,7 @@ Demo板发送过程如下：
 | IOF    | 1字节 |                               识别符（68H）                                |
 | Cmd    | 1字节 |                           [Cmd 说明](#cmd-说明)                            |
 | SubCmd | 1字节 |                       [子命令码 说明](#子命令码说明)                       |
+| Key    | 2字节 |                    下行时带的命令标识，上行时需要带回。                    |
 | Addr   | 2字节 |                    Demo板地址为2字节BCD码（0-65535）。                     |
 | Num    | 2字节 |              批量传输数据时，表示首位数据在整个数据块中的编号              |
 | State  | 1字节 | 批量传输数据时，传输完成标志位，0：传输为完成，1：传输完成，此帧为最后一帧 |
@@ -160,9 +161,9 @@ static private byte[] CRC16(IENumerable<byte> data)
 
 * 命令格式 (16进制示例)
   
-|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
-| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---------: | :---: | :---: |
-|  68   | 00 0b |  68   |  17   |   01   | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
+|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd |  Key  | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
+| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---: | :---------: | :---: | :---: |
+|  68   | 00 0d |  68   |  17   |   01   | XX XX | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
 
 > Addr参数表示设备地址
 > 
@@ -173,9 +174,9 @@ static private byte[] CRC16(IENumerable<byte> data)
 
 * 命令应答 (16进制示例)
   
-|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd | Addr  |  Num  | state | Data[] |  CRC  |  EOT  |
-| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :----: | :---: | :---: |
-|  68   | XX XX |  68   |  97   |   01   | 00 01 | 00 00 |  01   |   XX   | XX XX |  16   |
+|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd |  Key  | Addr  |  Num  | state | Data[] |  CRC  |  EOT  |
+| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---: | :----: | :---: | :---: |
+|  68   | XX XX |  68   |  97   |   01   | XX XX | XX XX | 00 00 |  01   |   XX   | XX XX |  16   |
 
 > Data[]参数解析： 不管Data返回多少数据，只取高位1个字节并转换成10进制作为电量
 >
@@ -191,9 +192,9 @@ static private byte[] CRC16(IENumerable<byte> data)
 
 * 命令格式 (16进制示例)
   
-|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
-| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---------: | :---: | :---: |
-|  68   | 00 0b |  68   |  17   |   02   | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
+|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd |  Key  | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
+| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---: | :---------: | :---: | :---: |
+|  68   | 00 0d |  68   |  17   |   02   | XX XX | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
 
 > Data[]参数解析：
 > 
@@ -203,9 +204,9 @@ static private byte[] CRC16(IENumerable<byte> data)
 
 * 命令应答 (16进制示例)
 
-|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
-| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---------: | :---: | :---: |
-|  68   | XX XX |  68   |  97   |   02   | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
+|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd |  Key  | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
+| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---: | :---------: | :---: | :---: |
+|  68   | XX XX |  68   |  97   |   02   | XX XX | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
 
 > Data[]参数解析： 
 >
@@ -221,9 +222,9 @@ static private byte[] CRC16(IENumerable<byte> data)
 
 * 命令格式 (16进制示例)
   
-|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
-| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---------: | :---: | :---: |
-|  68   | 00 0b |  68   |  17   |   03   | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
+|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd |  Key  | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
+| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---: | :---------: | :---: | :---: |
+|  68   | 00 0d |  68   |  17   |   03   | XX XX | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
 
 > Data[]参数解析：
 > 
@@ -233,9 +234,9 @@ static private byte[] CRC16(IENumerable<byte> data)
 
 * 命令应答 (16进制示例)
 
-|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
-| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---------: | :---: | :---: |
-|  68   | XX XX |  68   |  97   |   03   | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
+|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd |  Key  | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
+| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---: | :---------: | :---: | :---: |
+|  68   | XX XX |  68   |  97   |   03   | XX XX | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
 
 > Data[]参数解析： 
 >
@@ -251,9 +252,9 @@ static private byte[] CRC16(IENumerable<byte> data)
 
 * 命令格式 (16进制示例)
   
-|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
-| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---------: | :---: | :---: |
-|  68   | 00 0b |  68   |  17   |   04   | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
+|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd |  Key  | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
+| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---: | :---------: | :---: | :---: |
+|  68   | 00 0d |  68   |  17   |   04   | XX XX | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
 
 > Data[]参数解析：
 > 
@@ -263,9 +264,9 @@ static private byte[] CRC16(IENumerable<byte> data)
 
 * 命令应答 (16进制示例)
 
-|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
-| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---------: | :---: | :---: |
-|  68   | XX XX |  68   |  97   |   04   | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
+|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd |  Key  | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
+| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---: | :---------: | :---: | :---: |
+|  68   | XX XX |  68   |  97   |   04   | XX XX | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
 
 > Data[]参数解析： 
 >
@@ -281,9 +282,9 @@ static private byte[] CRC16(IENumerable<byte> data)
 
 * 命令格式 (16进制示例)
   
-|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
-| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---------: | :---: | :---: |
-|  68   | XX XX |  68   |  17   |   05   | XX XX | XX XX |  XX   | XX .. .. .. | XX XX |  16   |
+|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd |  Key  | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
+| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---: | :---------: | :---: | :---: |
+|  68   | XX XX |  68   |  17   |   05   | XX XX | XX XX | XX XX |  XX   | XX .. .. .. | XX XX |  16   |
 
 > Num 表示当前是第几个包
 > 
@@ -296,9 +297,9 @@ static private byte[] CRC16(IENumerable<byte> data)
 
 * 命令应答 (16进制示例)
 
-|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
-| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---------: | :---: | :---: |
-|  68   | XX XX |  68   |  97   |   05   | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
+|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd |  Key  | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
+| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---: | :---------: | :---: | :---: |
+|  68   | XX XX |  68   |  97   |   05   | XX XX | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
 
 > Data[]参数解析： 
 >
@@ -314,9 +315,9 @@ static private byte[] CRC16(IENumerable<byte> data)
 
 * 命令格式 (16进制示例)
   
-|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
-| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---------: | :---: | :---: |
-|  68   | 00 0b |  68   |  17   |   06   | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
+|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd |  Key  | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
+| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---: | :---------: | :---: | :---: |
+|  68   | 00 0d |  68   |  17   |   06   | XX XX | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
 
 > Data[]参数解析：
 > | 参数 | 长度  | 说明  |
@@ -325,9 +326,9 @@ static private byte[] CRC16(IENumerable<byte> data)
 
 * 命令应答 (16进制示例)
 
-|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
-| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---------: | :---: | :---: |
-|  68   | XX XX |  68   |  97   |   06   | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
+|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd |  Key  | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
+| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---: | :---------: | :---: | :---: |
+|  68   | XX XX |  68   |  97   |   06   | XX XX | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
 
 > Data[]参数解析： 
 >
@@ -344,9 +345,9 @@ static private byte[] CRC16(IENumerable<byte> data)
 
 * 命令格式 (16进制示例)
   
-|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
-| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---------: | :---: | :---: |
-|  68   | XX XX |  68   |  17   |   07   | XX XX | XX XX |  XX   | XX .. .. .. | XX XX |  16   |
+|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd |  Key  | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
+| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---: | :---------: | :---: | :---: |
+|  68   | XX XX |  68   |  17   |   07   | XX XX | XX XX | XX XX |  XX   | XX .. .. .. | XX XX |  16   |
 
 > Num 表示当前是第几个包
 > 
@@ -360,9 +361,9 @@ static private byte[] CRC16(IENumerable<byte> data)
 
 * 命令应答 (16进制示例)
 
-|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
-| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---------: | :---: | :---: |
-|  68   | XX XX |  68   |  97   |   07   | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
+|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd |  Key  | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
+| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---: | :---------: | :---: | :---: |
+|  68   | XX XX |  68   |  97   |   07   | XX XX | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
 
 > Data[]参数解析： 
 >
@@ -378,9 +379,9 @@ static private byte[] CRC16(IENumerable<byte> data)
 
 * 命令格式 (16进制示例)
   
-|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
-| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---------: | :---: | :---: |
-|  68   | 00 0b |  68   |  17   |   08   | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
+|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd |  Key  | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
+| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---: | :---------: | :---: | :---: |
+|  68   | 00 0d |  68   |  17   |   08   | XX XX | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
 
 > Data[]参数解析：
 > | 参数 | 长度  | 说明  |
@@ -389,9 +390,9 @@ static private byte[] CRC16(IENumerable<byte> data)
 
 * 命令应答 (16进制示例)
 
-|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
-| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---------: | :---: | :---: |
-|  68   | XX XX |  68   |  97   |   08   | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
+|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd |  Key  | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
+| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---: | :---------: | :---: | :---: |
+|  68   | XX XX |  68   |  97   |   08   | XX XX | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
 
 > Data[]参数解析： 
 >
@@ -407,9 +408,9 @@ static private byte[] CRC16(IENumerable<byte> data)
 
 * 命令格式 (16进制示例)
   
-|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
-| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---------: | :---: | :---: |
-|  68   | 00 0b |  68   |  17   |   09   | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
+|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd |  Key  | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
+| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---: | :---------: | :---: | :---: |
+|  68   | 00 0d |  68   |  17   |   09   | XX XX | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
 
 > Data[]参数解析：
 > | 参数 | 长度  | 说明  |
@@ -418,9 +419,9 @@ static private byte[] CRC16(IENumerable<byte> data)
 
 * 命令应答 (16进制示例)
 
-|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
-| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---------: | :---: | :---: |
-|  68   | XX XX |  68   |  97   |   09   | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
+|  SOH  |  Len  |  IOF  |  Cmd  | SubCmd |  Key  | Addr  |  Num  | state |   Data[]    |  CRC  |  EOT  |
+| :---: | :---: | :---: | :---: | :----: | :---: | :---: | :---: | :---: | :---------: | :---: | :---: |
+|  68   | XX XX |  68   |  97   |   09   | XX XX | XX XX | 00 00 |  01   | 00 00 00 00 | XX XX |  16   |
 
 > Data[]参数解析： 
 >
